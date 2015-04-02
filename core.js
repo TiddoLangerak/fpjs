@@ -1,5 +1,12 @@
+//Type notes:
+//- Inspired by haskell.
+//- Type names starting with an upper case are actual type names
+//- Type names starting with a lower case are type variables
+//- Generic types are defined by `Type typeVariable` (e.g. `List a`)
 /**
  * Identity function, returns it's first argument.
+ *
+ * :: a -> a
  */
 function identity(arg) {
 	return arg;
@@ -11,6 +18,9 @@ function identity(arg) {
  * E.g. f(g(x)) === compose(f, g)(x);
  *
  * Any number of arguments can be passed to the compose function.
+ *
+ * :: (a -> b) -> (b -> c) -> (a -> c)
+ * :: (t_1 -> t_2) -> (t_2 -> t_3) -> ... -> (t_n-1 -> t)n) -> (t_1 -> t_n)
  */
 var compose = curry(function(f1, f2) {
 	var funcs = [].slice.apply(arguments);
@@ -40,6 +50,8 @@ var compose = curry(function(f1, f2) {
  *
  * @param {Function} f The function to curry
  * @param {number} [nrOfArgs] The number of arguments needed to call function `f`. Defaults to `f.length`.
+ *
+ * :: (t1 -> t2 -> ... -> tn -> r) -> t1 -> t2 -> ... -> tn -> r
  */
 function curry(f, nrOfArgs) {
 	//By default we can detect the number of arguments by reading the length property of the function.
@@ -65,6 +77,14 @@ function curry(f, nrOfArgs) {
 	};
 }
 
+/**
+ * Iterates over a subject.
+ *
+ * @param {Function} iterator A function to be called with each value of the subject
+ * @param {{ forEach }} subject An object that implements a forEach function.
+ *
+ * :: (a -> () ) -> (ForEach a) -> ()
+ */
 var forEach = curry(function(iterator, subject) {
 	if (subject.forEach) {
 		return subject.forEach(compose(iterator, identity));
@@ -81,10 +101,28 @@ var forEach = curry(function(iterator, subject) {
 	}
 });
 
+/**
+ * Maps an object using an iterator function.
+ *
+ * @param {Function} iterator A function that maps one value to another.
+ * @param {{ map }} subject An object that implements a map function.
+ *
+ * Map (a -> b) c : An object with a map function that uses an iterator of type (a -> b) to create
+ *                  an object of type c.
+ * :: (a -> b) -> (Map (a -> b) c) -> c
+ */
+var map = curry(function(iterator, subject) {
+	if (!subject.map) {
+		throw new Error("Subject does not implement the map interface");
+	}
+	return subject.map(compose(iterator, identity));
+});
+
 module.exports = {
 	i : identity,
 	identity : identity,
 	compose : compose,
 	curry : curry,
-	forEach : forEach
+	forEach : forEach,
+	map : map
 };

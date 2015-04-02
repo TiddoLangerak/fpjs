@@ -29,6 +29,18 @@ var compose = curry(function(f1, f2) {
 	};
 });
 
+/**
+ * Creates a curryable version of a function.
+ *
+ * The partial functions can be called with any number of arguments. Whenever a sufficient number
+ * of arguments is provided the underlying function will be invoked.
+ *
+ * By default the total number of arguments required is equal to f.length, but this can be overridden
+ * by passing in the second argument.
+ *
+ * @param {Function} f The function to curry
+ * @param {number} [nrOfArgs] The number of arguments needed to call function `f`. Defaults to `f.length`.
+ */
 function curry(f, nrOfArgs) {
 	//By default we can detect the number of arguments by reading the length property of the function.
 	//This should return the number of defined arguments
@@ -53,9 +65,26 @@ function curry(f, nrOfArgs) {
 	};
 }
 
+var forEach = curry(function(iterator, subject) {
+	if (subject.forEach) {
+		return subject.forEach(compose(iterator, identity));
+	} else {
+		//Getting the keys first and using that to iterate over the object is faster than
+		//for..in with hasOwnProperty and also faster than keys.forEach in most browsers.
+		//The exception is the current stable version of Firefox (36), but in the current dev version (38)
+		//this method is also the fastest.
+		//See also http://jsperf.com/own-property-iteration
+		var keys = Object.keys(subject);
+		for (var i = 0; i < keys.length; i++) {
+			iterator(subject[keys[i]]);
+		}
+	}
+});
+
 module.exports = {
 	i : identity,
 	identity : identity,
 	compose : compose,
-	curry : curry
+	curry : curry,
+	forEach : forEach
 };

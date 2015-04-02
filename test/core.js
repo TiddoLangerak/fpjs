@@ -1,4 +1,4 @@
-let { compose, identity, i, curry} = require('../core');
+let { compose, identity, i, curry, forEach } = require('../core');
 
 describe('identity', function() {
 	it('should return it\'s argument', function() {
@@ -77,5 +77,55 @@ describe('curry', function() {
 		let partial = curried(1, 2);
 		partial(3).should.equal(3);
 		partial(4).should.equal(4);
+	});
+});
+
+describe('forEach', function() {
+
+	it('should call it\'s iterator with exactly one argument', function() {
+		let isCalled = false;
+		forEach(function() {
+			isCalled = true;
+			arguments.length.should.equal(1);
+		}, [1, 2, 3]);
+		isCalled.should.equal(true, 'Iterator was not called');
+	});
+
+	it('should call it\'s iterator once with each element in an array', function() {
+		let arr = [1, 2, 3];
+		let seen = [];
+		forEach(function(item) {
+			seen.push(item);
+		},arr);
+		//Note that forEach doesn't need to run in order, so we sort first.
+		arr.sort().should.eql(seen.sort());
+	});
+
+	it('should use an object\'s forEach property to iterate over it\'s items', function() {
+		let obj = {
+			forEach : function(iterator) {
+				for (let i = 0; i < 3; i++) {
+					iterator(i);
+				}
+			}
+		};
+
+		let seen = [];
+		forEach(seen.push.bind(seen), obj);
+		seen.sort().should.eql([0, 1, 2]);
+	});
+
+	it('should iterate over an object\'s own properties if no forEach method is defined', function() {
+		let proto = {
+			foo : 1,
+			bar : 2
+		};
+		let obj = Object.create(proto);
+		obj.baz = 3;
+		obj.qux = 4;
+
+		let seen = [];
+		forEach(seen.push.bind(seen), obj);
+		seen.sort().should.eql([3, 4]);
 	});
 });

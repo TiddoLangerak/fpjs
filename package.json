@@ -1,0 +1,16 @@
+{
+  "name": "fpjs",
+  "version": "0.0.1",
+  "description": "",
+  "main": "index.js",
+  "author": "Tiddo Langerak <tiddolangerak@gmail.com>",
+  "license": "MIT",
+  "scripts" : {
+	  "test" : "mocha --compilers js:babel/register --require should test/**/*.js"
+	},
+  "devDependencies": {
+    "babel": "^4.7.16",
+    "mocha": "^2.2.1",
+    "should": "^5.2.0"
+  }
+}

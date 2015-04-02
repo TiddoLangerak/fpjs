@@ -12,7 +12,7 @@ function identity(arg) {
  *
  * Any number of arguments can be passed to the compose function.
  */
-function compose(f1, f2) {
+var compose = curry(function(f1, f2) {
 	var funcs = [].slice.apply(arguments);
 	var last = funcs[funcs.length - 1];
 	//The functional way would be to use reduce to construct the composed function. However,
@@ -27,7 +27,7 @@ function compose(f1, f2) {
 			}
 			return res;
 	};
-}
+});
 
 function curry(f, nrOfArgs) {
 	//By default we can detect the number of arguments by reading the length property of the function.

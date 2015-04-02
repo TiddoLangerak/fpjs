@@ -25,16 +25,24 @@ describe('compose', function() {
 	function timesTwo(x) {
 		return x * 2;
 	}
+
 	it('should return a function', function() {
 		compose(i, i).should.type('function');
 	});
+
 	it('should hold that compose(plusOne, timesTwo)(x) === plusOne(timesTwo(x))', function() {
 		let value = 35;
 		compose(plusOne, timesTwo)(value).should.equal(plusOne(timesTwo(value)));
 	});
+
 	it('should hold that compose(plusOne, timesTwo, plusOne)(x) === plusOne(timesTwo(plusOne(x)))', function() {
 		let value = 35;
 		compose(plusOne, timesTwo, plusOne)(value).should.equal(plusOne(timesTwo(plusOne(value))));
+	});
+
+	it('should be curryable with 2 arguments', function() {
+		let andOne = compose(plusOne);
+		andOne(timesTwo)(3).should.equal(plusOne(timesTwo(3)));
 	});
 });
 

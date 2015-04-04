@@ -226,4 +226,20 @@ describe('values', function() {
 		//Note: equal does identity checking, so we need to use that
 		values(obj)[0].should.equal(val);
 	});
+
+	it('should return a shallow copy of an array input', function() {
+		var val = [1, 2, 3];
+		var val2 = values(val);
+		val2.should.eql(val);
+		val2.should.not.equal(val);
+	});
+
+	it('should not include extra enumerable properties of arrays', function() {
+		var arr = [];
+		arr.foo = 'bar';
+		values(arr).should.eql([]);
+		values(arr).should.not.containDeep(['bar']);
+	});
+
+});
 });

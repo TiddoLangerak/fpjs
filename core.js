@@ -104,10 +104,23 @@ var forEach = curry(function(iterator, subject) {
  */
 var map = curry(function(iterator, subject) {
 	if (!subject.map) {
-		throw new Error("Subject does not implement the map interface");
+		throw new Error("Subject does not implement the Map interface");
 	}
 	return subject.map(compose(iterator, identity));
 });
+
+/**
+ * Returns all own enumerable values of an object.
+ *
+ * :: ( { a } ) -> [a]
+ */
+var values = function(object) {
+	//Iterating over the keys is the fastest method, see http://jsperf.com/own-property-iteration
+	var props = Object.keys(object);
+	return map(function(prop) {
+		return object[prop];
+	}, props);
+};
 
 module.exports = {
 	i : identity,
@@ -115,5 +128,6 @@ module.exports = {
 	compose : compose,
 	curry : curry,
 	forEach : forEach,
-	map : map
+	map : map,
+	values : values
 };

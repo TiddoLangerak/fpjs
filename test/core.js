@@ -1,4 +1,4 @@
-let { compose, identity, i, curry, forEach, map } = require('../core');
+let { compose, identity, i, curry, forEach, map, values } = require('../core');
 
 describe('identity', function() {
 	it('should return it\'s argument', function() {
@@ -193,5 +193,37 @@ describe('map', function() {
 			seen.push(item);
 		})(arr);
 		arr.should.eql(seen.sort());
+	});
+});
+
+describe('values', function() {
+	it('should return all own enumerable properties of an object', function() {
+		let obj = {
+			foo : 3,
+			bar : 4,
+			baz : 'foo'
+		};
+		values(obj).should.eql([3, 4, 'foo']);
+	});
+	it('should ignore any properties in the prototype', function() {
+		let proto = {
+			foo : 3,
+			bar : 4,
+			baz : 'foo'
+		};
+		values(Object.create(proto)).should.eql([]);
+	});
+	it('should ignore all non-enumerable properties', function() {
+		var obj = {};
+		Object.defineProperty(obj, 'foo', { configurable : true, enumerable : false, value : 'foo', writable : true});
+		values(obj).should.eql([]);
+	});
+	it('should return a shallow copy of the values', function() {
+		var val = {};
+		var obj = {
+			val : val
+		};
+		//Note: equal does identity checking, so we need to use that
+		values(obj)[0].should.equal(val);
 	});
 });

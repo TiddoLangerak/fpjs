@@ -115,18 +115,14 @@ describe('forEach', function() {
 		seen.sort().should.eql([0, 1, 2]);
 	});
 
-	it('should iterate over an object\'s own properties if no forEach method is defined', function() {
-		let proto = {
+	it('should throw when no forEach property is found', function() {
+		let obj = {
 			foo : 1,
 			bar : 2
 		};
-		let obj = Object.create(proto);
-		obj.baz = 3;
-		obj.qux = 4;
 
 		let seen = [];
-		forEach(seen.push.bind(seen), obj);
-		seen.sort().should.eql([3, 4]);
+		(function() { forEach(seen.push.bind(seen), obj); }).should.throw();
 	});
 
 	it('should be curryable', function() {

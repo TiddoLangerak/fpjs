@@ -86,19 +86,10 @@ function curry(f, nrOfArgs) {
  * :: (a -> () ) -> (ForEach a) -> ()
  */
 var forEach = curry(function(iterator, subject) {
-	if (subject.forEach) {
-		return subject.forEach(compose(iterator, identity));
-	} else {
-		//Getting the keys first and using that to iterate over the object is faster than
-		//for..in with hasOwnProperty and also faster than keys.forEach in most browsers.
-		//The exception is the current stable version of Firefox (36), but in the current dev version (38)
-		//this method is also the fastest.
-		//See also http://jsperf.com/own-property-iteration
-		var keys = Object.keys(subject);
-		for (var i = 0; i < keys.length; i++) {
-			iterator(subject[keys[i]]);
-		}
+	if (!subject.forEach) {
+		throw new Error("Subject does not implement the ForEach interface");
 	}
+	return subject.forEach(compose(iterator, identity));
 });
 
 /**

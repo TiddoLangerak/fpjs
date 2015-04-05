@@ -1,4 +1,5 @@
-let { curry, compose, identity } = require('./core');
+let { curry, identity } = require('./core');
+let { compose } = require('./function');
 /**
  * Iterates over a subject.
  *

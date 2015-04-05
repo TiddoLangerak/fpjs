@@ -1,4 +1,29 @@
-let { assistedCurry } = require('./core');
+let { assistedCurry, curry } = require('./core');
+
+/**
+ * Composes functions together.
+ *
+ * E.g. f(g(x)) === compose(f, g)(x);
+ *
+ * Any number of arguments can be passed to the compose function.
+ *
+ * :: (a -> b) -> (b -> c) -> (a -> c)
+ * :: (t_1 -> t_2) -> (t_2 -> t_3) -> ... -> (t_n-1 -> t)n) -> (t_1 -> t_n)
+ */
+let compose = curry(function(...funcs) {
+	let last = funcs[funcs.length - 1];
+	//The functional way would be to use reduce to construct the composed function. However,
+	//that is significantly slower than using a loop (see http://jsperf.com/reduce-vs-iteration-x, I've also
+	//tested it with different numbers of functions and arguments. Results are always the same)
+	//So therefore we use the less sexy loop instead.
+	return (...args) => {
+			let res = last.apply(null, args);
+			for (let i = funcs.length - 2; i >= 0; i--) {
+					res = funcs[i](res);
+			}
+			return res;
+	};
+}, 2);
 
 /**
  * Creates a function that slices the arguments before applying them to the underlying function.
@@ -36,5 +61,6 @@ let truncateArguments = sliceArguments(0);
 
 module.exports = {
 	sliceArguments,
-	truncateArguments
+	truncateArguments,
+	compose
 };

@@ -1,4 +1,4 @@
-let { compose, identity, i, curry, forEach, map } = require('../core');
+let { compose, identity, i, curry, forEach, map, assistedCurry } = require('../core');
 
 describe('identity', function() {
 	it('should return it\'s argument', function() {
@@ -78,6 +78,70 @@ describe('curry', function() {
 		partial(3).should.equal(3);
 		partial(4).should.equal(4);
 	});
+});
+
+describe('assistedCurry', function() {
+	function spreadMap(...args) {
+		let iterator = args.pop();
+		return map(iterator, args);
+	}
+
+	function curryCheck(args) {
+		return args[args.length - 1] instanceof Function;
+	}
+
+	function timesTwo (x) {
+		return x * 2;
+	}
+
+	let curried = assistedCurry(spreadMap, curryCheck);
+
+	it('should call the underlying function when the initial arguments pass the curryCheck', function() {
+		curried(1, 2, timesTwo).should.eql([2, 4]);
+	});
+	it('should call the underlying function when the curried arguments pass the curryCheck', function() {
+		curried(1)(2)(timesTwo).should.eql([2, 4]);
+	});
+
+	it('should call the curryCheck for each curried call', function() {
+		let callCount = 0;
+		let curried = assistedCurry(() => {}, () => { callCount++; return false; });
+		curried(1)(2)(3);
+		callCount.should.equal(3);
+	});
+
+	it('should call the curry check with the accumulated array of arguments', function() {
+		let expectedArguments = [
+			[1],
+			[1, 2],
+			[1, 2, 3]
+		];
+		let curried = assistedCurry(() => {}, (args) => {
+			args.should.eql(expectedArguments.shift());
+		});
+		curried(1)(2)(3);
+		expectedArguments.length.should.equal(0, "Curry check has not been called enough times");
+	});
+
+	it('should not call the underlying function if the check does not succeed', function() {
+		let isCalled = false;
+		let currried = assistedCurry(() => isCalled = true, () => false);
+		curried(1)(2)(3);
+		isCalled.should.equal(false, 'Function has been called when it should not');
+	});
+
+	it('should call the underlying function with all arguments passed', function() {
+		let isCalled = false;
+		let calledArgs;
+		let curried = assistedCurry((...args) => {
+			isCalled = true;
+			calledArgs = args;
+		}, curryCheck);
+		curried(1, 2, 3, timesTwo);
+		isCalled.should.equal(true, 'Function should have been called, but it hasn\'t');
+		calledArgs.should.eql([1, 2, 3, timesTwo], 'Function has been called with the wrong arguments');
+	});
+
 });
 
 describe('forEach', function() {

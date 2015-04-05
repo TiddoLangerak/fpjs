@@ -3,6 +3,7 @@
 //- Type names starting with an upper case are actual type names
 //- Type names starting with a lower case are type variables
 //- Generic types are defined by `Type typeVariable` (e.g. `List a`)
+
 /**
  * Identity function, returns it's first argument.
  *
@@ -104,12 +105,6 @@ let map = curry((iterator, subject) => {
 		throw new Error("Subject does not implement the Map interface");
 	}
 	return subject.map(compose(iterator, identity));
-});
-
-let reduce = curry((iterator, initialValue, subject) => {
-	if (subject.reduce) {
-		return subject.reduce(iterator, initialValue);
-	}
 });
 
 module.exports = {

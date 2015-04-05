@@ -1,7 +1,7 @@
 let { values, forEach, map } = require('../collection');
 
-describe('values', function() {
-	it('should return all own enumerable properties of an object', function() {
+describe('values', () => {
+	it('should return all own enumerable properties of an object', () => {
 		let obj = {
 			foo : 3,
 			bar : 4,
@@ -9,7 +9,7 @@ describe('values', function() {
 		};
 		values(obj).should.eql([3, 4, 'foo']);
 	});
-	it('should ignore any properties in the prototype', function() {
+	it('should ignore any properties in the prototype', () => {
 		let proto = {
 			foo : 3,
 			bar : 4,
@@ -17,12 +17,12 @@ describe('values', function() {
 		};
 		values(Object.create(proto)).should.eql([]);
 	});
-	it('should ignore all non-enumerable properties', function() {
+	it('should ignore all non-enumerable properties', () => {
 		var obj = {};
 		Object.defineProperty(obj, 'foo', { configurable : true, enumerable : false, value : 'foo', writable : true});
 		values(obj).should.eql([]);
 	});
-	it('should return a shallow copy of the values', function() {
+	it('should return a shallow copy of the values', () => {
 		var val = {};
 		var obj = {
 			val : val
@@ -31,14 +31,14 @@ describe('values', function() {
 		values(obj)[0].should.equal(val);
 	});
 
-	it('should return a shallow copy of an array input', function() {
+	it('should return a shallow copy of an array input', () => {
 		var val = [1, 2, 3];
 		var val2 = values(val);
 		val2.should.eql(val);
 		val2.should.not.equal(val);
 	});
 
-	it('should not include extra enumerable properties of arrays', function() {
+	it('should not include extra enumerable properties of arrays', () => {
 		var arr = [];
 		arr.foo = 'bar';
 		values(arr).should.eql([]);
@@ -47,30 +47,30 @@ describe('values', function() {
 
 });
 
-describe('forEach', function() {
+describe('forEach', () => {
 
-	it('should call it\'s iterator with exactly one argument', function() {
+	it('should call it\'s iterator with exactly one argument', () => {
 		let isCalled = false;
-		forEach(function() {
+		forEach((...args) => {
 			isCalled = true;
-			arguments.length.should.equal(1);
+			args.length.should.equal(1);
 		}, [1, 2, 3]);
 		isCalled.should.equal(true, 'Iterator was not called');
 	});
 
-	it('should call it\'s iterator once with each element in an array', function() {
+	it('should call it\'s iterator once with each element in an array', () => {
 		let arr = [1, 2, 3];
 		let seen = [];
-		forEach(function(item) {
+		forEach((item) => {
 			seen.push(item);
 		},arr);
 		//Note that forEach doesn't need to run in order, so we sort first.
 		arr.sort().should.eql(seen.sort());
 	});
 
-	it('should use an object\'s forEach property to iterate over it\'s items', function() {
+	it('should use an object\'s forEach property to iterate over it\'s items', () => {
 		let obj = {
-			forEach : function(iterator) {
+			forEach (iterator) {
 				for (let i = 0; i < 3; i++) {
 					iterator(i);
 				}
@@ -82,20 +82,20 @@ describe('forEach', function() {
 		seen.sort().should.eql([0, 1, 2]);
 	});
 
-	it('should throw when no forEach property is found', function() {
+	it('should throw when no forEach property is found', () => {
 		let obj = {
 			foo : 1,
 			bar : 2
 		};
 
 		let seen = [];
-		(function() { forEach(seen.push.bind(seen), obj); }).should.throw();
+		(() => { forEach(seen.push.bind(seen), obj); }).should.throw();
 	});
 
-	it('should be curryable', function() {
+	it('should be curryable', () => {
 		let arr = [1, 2, 3];
 		let seen = [];
-		forEach(function(item) {
+		forEach((item) => {
 			seen.push(item);
 		})(arr);
 		//Note that forEach doesn't need to run in order, so we sort first.

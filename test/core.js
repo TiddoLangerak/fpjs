@@ -1,59 +1,59 @@
 let { compose, identity, i, curry, assistedCurry } = require('../core');
 let { map } = require('../collection');
 
-describe('identity', function() {
-	it('should return it\'s argument', function() {
+describe('identity', () => {
+	it('should return it\'s argument', () => {
 		let input = {};
 		identity(input).should.equal(input);
 	});
-	it('should ignore any additional parameters', function() {
+	it('should ignore any additional parameters', () => {
 		let input = {};
 		let extra = {};
 		identity(input, extra).should.equal(input);
 	});
 });
 
-describe('i', function() {
-	it('should be an alias for identity', function() {
+describe('i', () => {
+	it('should be an alias for identity', () => {
 		i.should.equal(identity);
 	});
 });
 
-describe('curry', function() {
+describe('curry', () => {
 	function foo(x, y, z) {
 		return z;
 	}
 	let curried = curry(foo);
 
-	it('should return a curried version of its input function', function() {
+	it('should return a curried version of its input function', () => {
 		curried(1)(2)(3).should.equal(3);
 	});
 
-	it('should allow the curried function to be called with multiple arguments at a time', function() {
+	it('should allow the curried function to be called with multiple arguments at a time', () => {
 		curried(1, 2)(3).should.equal(3);
 	});
 
-	it('should allow the curried function to be called with all arguments directly', function() {
+	it('should allow the curried function to be called with all arguments directly', () => {
 		curried(1, 2, 3).should.equal(3);
 	});
 
-	it('should allow the number of arguments to be specified manually', function() {
+	it('should allow the number of arguments to be specified manually', () => {
 		let curried4 = curry(foo, 4);
 		curried4(1)(2)(3)(4).should.equal(3);
 	});
 
-	it('should not care abut additional arguments in the last call', function() {
+	it('should not care abut additional arguments in the last call', () => {
 		curried(1, 2)(3, 4, 5, 6).should.equal(3);
 	});
 
-	it('should allow partial functions to be reused', function() {
+	it('should allow partial functions to be reused', () => {
 		let partial = curried(1, 2);
 		partial(3).should.equal(3);
 		partial(4).should.equal(4);
 	});
 });
 
-describe('assistedCurry', function() {
+describe('assistedCurry', () => {
 	function spreadMap(...args) {
 		let iterator = args.pop();
 		return map(iterator, args);
@@ -69,21 +69,21 @@ describe('assistedCurry', function() {
 
 	let curried = assistedCurry(spreadMap, curryCheck);
 
-	it('should call the underlying function when the initial arguments pass the curryCheck', function() {
+	it('should call the underlying function when the initial arguments pass the curryCheck', () => {
 		curried(1, 2, timesTwo).should.eql([2, 4]);
 	});
-	it('should call the underlying function when the curried arguments pass the curryCheck', function() {
+	it('should call the underlying function when the curried arguments pass the curryCheck', () => {
 		curried(1)(2)(timesTwo).should.eql([2, 4]);
 	});
 
-	it('should call the curryCheck for each curried call', function() {
+	it('should call the curryCheck for each curried call', () => {
 		let callCount = 0;
 		let curried = assistedCurry(() => {}, () => { callCount++; return false; });
 		curried(1)(2)(3);
 		callCount.should.equal(3);
 	});
 
-	it('should call the curry check with the accumulated array of arguments', function() {
+	it('should call the curry check with the accumulated array of arguments', () => {
 		let expectedArguments = [
 			[1],
 			[1, 2],
@@ -96,14 +96,14 @@ describe('assistedCurry', function() {
 		expectedArguments.length.should.equal(0, "Curry check has not been called enough times");
 	});
 
-	it('should not call the underlying function if the check does not succeed', function() {
+	it('should not call the underlying function if the check does not succeed', () => {
 		let isCalled = false;
 		let currried = assistedCurry(() => isCalled = true, () => false);
 		curried(1)(2)(3);
 		isCalled.should.equal(false, 'Function has been called when it should not');
 	});
 
-	it('should call the underlying function with all arguments passed', function() {
+	it('should call the underlying function with all arguments passed', () => {
 		let isCalled = false;
 		let calledArgs;
 		let curried = assistedCurry((...args) => {

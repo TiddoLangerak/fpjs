@@ -22,22 +22,20 @@ function identity(arg) {
  * :: (a -> b) -> (b -> c) -> (a -> c)
  * :: (t_1 -> t_2) -> (t_2 -> t_3) -> ... -> (t_n-1 -> t)n) -> (t_1 -> t_n)
  */
-var compose = curry(function(f1, f2) {
-	var funcs = [].slice.apply(arguments);
-	var last = funcs[funcs.length - 1];
+let compose = curry(function(...funcs) {
+	let last = funcs[funcs.length - 1];
 	//The functional way would be to use reduce to construct the composed function. However,
 	//that is significantly slower than using a loop (see http://jsperf.com/reduce-vs-iteration-x, I've also
 	//tested it with different numbers of functions and arguments. Results are always the same)
 	//So therefore we use the less sexy loop instead.
-	return function() {
-			var args = [].slice.apply(arguments);
-			var res = last.apply(null, args);
-			for (var i = funcs.length - 2; i >= 0; i--) {
+	return (...args) => {
+			let res = last.apply(null, args);
+			for (let i = funcs.length - 2; i >= 0; i--) {
 					res = funcs[i](res);
 			}
 			return res;
 	};
-});
+}, 2);
 
 /**
  * Creates a curryable version of a function.
@@ -59,19 +57,18 @@ function curry(f, nrOfArgs) {
 	if (nrOfArgs === undefined) {
 		nrOfArgs = f.length;
 	}
-	return function() {
+	return (...args) => {
 		//We allow the curried function to be called with any number of arguments. We collect the arguments
 		//passed so far.
-		var args = [].slice.apply(arguments);
-		var remaining = nrOfArgs - args.length;
+		let remaining = nrOfArgs - args.length;
 		//When we have enough we call the actual function
 		if (remaining <= 0) {
 			return f.apply(null, args);
 		} else {
 			//If we don't have enough we return a new curried function
-			return curry(function() {
-				var innerArgs = args.concat([].slice.apply(arguments));
-				return f.apply(null, innerArgs);
+			return curry((...extraArgs) => {
+				let allArgs = args.concat(extraArgs);
+				return f.apply(null, allArgs);
 			}, remaining);
 		}
 	};
@@ -85,7 +82,7 @@ function curry(f, nrOfArgs) {
  *
  * :: (a -> () ) -> (ForEach a) -> ()
  */
-var forEach = curry(function(iterator, subject) {
+let forEach = curry((iterator, subject) => {
 	if (!subject.forEach) {
 		throw new Error("Subject does not implement the ForEach interface");
 	}
@@ -102,19 +99,19 @@ var forEach = curry(function(iterator, subject) {
  *                  an object of type c.
  * :: (a -> b) -> (Map (a -> b) c) -> c
  */
-var map = curry(function(iterator, subject) {
+let map = curry((iterator, subject) => {
 	if (!subject.map) {
 		throw new Error("Subject does not implement the Map interface");
 	}
 	return subject.map(compose(iterator, identity));
 });
 
+let reduce = curry((iterator, initialValue, subject) => {
+	if (subject.reduce) {
+		return subject.reduce(iterator, initialValue);
+	}
+});
 
 module.exports = {
-	i : identity,
-	identity : identity,
-	compose : compose,
-	curry : curry,
-	forEach : forEach,
-	map : map
+	identity, i : identity, compose, curry, forEach, map
 };

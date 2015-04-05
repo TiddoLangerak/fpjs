@@ -5,11 +5,15 @@
   "main": "index.js",
   "author": "Tiddo Langerak <tiddolangerak@gmail.com>",
   "license": "MIT",
-  "scripts" : {
-	  "test" : "mocha --compilers js:babel/register --require should test/**/*.js"
-	},
+  "scripts": {
+    "test": "npm run build && mocha --compilers js:babel/register --require should test/**/*.js",
+    "build" : "babel src -d .",
+    "clean" : "find src -name '*.js' | sed 's/^src\\///' | xargs rm -f",
+    "prepublish" : "npm run build",
+    "postpublish" : "npm run clean"
+  },
   "devDependencies": {
-    "babel": "^4.7.16",
+    "babel": "^5.0.8",
     "mocha": "^2.2.1",
     "should": "^5.2.0"
   }

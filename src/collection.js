@@ -1,4 +1,4 @@
-var core = require('./core.js');
+let { map } = require('./core.js');
 /**
  * Returns all own enumerable values of an object.
  *
@@ -14,17 +14,17 @@ var core = require('./core.js');
  * :: ( { a } ) -> [a]
  * :: ( [a] ) -> [a]
  */
-var values = function(object) {
+let values = (object) => {
 	if (object instanceof Array) {
 		return object.slice();
 	}
 	//Iterating over the keys is the fastest method, see http://jsperf.com/own-property-iteration
-	var props = Object.keys(object);
-	return core.map(function(prop) {
+	let props = Object.keys(object);
+	return map((prop) => {
 		return object[prop];
 	}, props);
 };
 
 module.exports = {
-	values : values
+	values
 };

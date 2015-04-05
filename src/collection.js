@@ -1,5 +1,8 @@
-let { curry, identity } = require('./core');
-let { compose } = require('./function');
+let { curry } = require('./core');
+let { compose, truncateArguments } = require('./function');
+
+let singleArgument = truncateArguments(1);
+
 /**
  * Iterates over a subject.
  *
@@ -12,7 +15,7 @@ let forEach = curry((iterator, subject) => {
 	if (!subject.forEach) {
 		throw new Error("Subject does not implement the ForEach interface");
 	}
-	return subject.forEach(compose(iterator, identity));
+	return subject.forEach(singleArgument(iterator));
 });
 
 /**
@@ -29,7 +32,7 @@ let map = curry((iterator, subject) => {
 	if (!subject.map) {
 		throw new Error("Subject does not implement the Map interface");
 	}
-	return subject.map(compose(iterator, identity));
+	return subject.map(singleArgument(iterator));
 });
 
 /**

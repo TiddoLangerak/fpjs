@@ -1,4 +1,36 @@
-let { map } = require('./core.js');
+let { curry, compose, identity } = require('./core');
+/**
+ * Iterates over a subject.
+ *
+ * @param {Function} iterator A function to be called with each value of the subject
+ * @param {{ forEach }} subject An object that implements a forEach function.
+ *
+ * :: (a -> () ) -> (ForEach a) -> ()
+ */
+let forEach = curry((iterator, subject) => {
+	if (!subject.forEach) {
+		throw new Error("Subject does not implement the ForEach interface");
+	}
+	return subject.forEach(compose(iterator, identity));
+});
+
+/**
+ * Maps an object using an iterator function.
+ *
+ * @param {Function} iterator A function that maps one value to another.
+ * @param {{ map }} subject An object that implements a map function.
+ *
+ * Map (a -> b) c : An object with a map function that uses an iterator of type (a -> b) to create
+ *                  an object of type c.
+ * :: (a -> b) -> (Map (a -> b) c) -> c
+ */
+let map = curry((iterator, subject) => {
+	if (!subject.map) {
+		throw new Error("Subject does not implement the Map interface");
+	}
+	return subject.map(compose(iterator, identity));
+});
+
 /**
  * Returns all own enumerable values of an object.
  *
@@ -25,6 +57,7 @@ let values = (object) => {
 	}, props);
 };
 
+
 module.exports = {
-	values
+	values, forEach, map
 };

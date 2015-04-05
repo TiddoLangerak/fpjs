@@ -1,4 +1,4 @@
-let { values } = require('../collection');
+let { values, forEach, map } = require('../collection');
 
 describe('values', function() {
 	it('should return all own enumerable properties of an object', function() {
@@ -46,3 +46,120 @@ describe('values', function() {
 	});
 
 });
+
+describe('forEach', function() {
+
+	it('should call it\'s iterator with exactly one argument', function() {
+		let isCalled = false;
+		forEach(function() {
+			isCalled = true;
+			arguments.length.should.equal(1);
+		}, [1, 2, 3]);
+		isCalled.should.equal(true, 'Iterator was not called');
+	});
+
+	it('should call it\'s iterator once with each element in an array', function() {
+		let arr = [1, 2, 3];
+		let seen = [];
+		forEach(function(item) {
+			seen.push(item);
+		},arr);
+		//Note that forEach doesn't need to run in order, so we sort first.
+		arr.sort().should.eql(seen.sort());
+	});
+
+	it('should use an object\'s forEach property to iterate over it\'s items', function() {
+		let obj = {
+			forEach : function(iterator) {
+				for (let i = 0; i < 3; i++) {
+					iterator(i);
+				}
+			}
+		};
+
+		let seen = [];
+		forEach(seen.push.bind(seen), obj);
+		seen.sort().should.eql([0, 1, 2]);
+	});
+
+	it('should throw when no forEach property is found', function() {
+		let obj = {
+			foo : 1,
+			bar : 2
+		};
+
+		let seen = [];
+		(function() { forEach(seen.push.bind(seen), obj); }).should.throw();
+	});
+
+	it('should be curryable', function() {
+		let arr = [1, 2, 3];
+		let seen = [];
+		forEach(function(item) {
+			seen.push(item);
+		})(arr);
+		//Note that forEach doesn't need to run in order, so we sort first.
+		arr.sort().should.eql(seen.sort());
+	});
+});
+
+describe('map', function() {
+
+	it('should call it\'s iterator with exactly one argument', function() {
+		let isCalled = false;
+		map(function() {
+			isCalled = true;
+			arguments.length.should.equal(1);
+		}, [1, 2, 3]);
+		isCalled.should.equal(true, 'Iterator was not called');
+	});
+
+	it('should call it\'s iterator once with each element in an array', function() {
+		let arr = [1, 2, 3];
+		let seen = [];
+		map(function(item) {
+			seen.push(item);
+		},arr);
+		arr.should.eql(seen.sort());
+	});
+
+	it('should collect the results of the iterator over an array into a new array', function() {
+		let arr = [1, 2, 3];
+		let result = map(function(item) {
+			return item * 2;
+		}, arr);
+		result.should.eql([2, 4, 6]);
+	});
+
+	it('should use an object\'s map property to iterate over it\'s items', function() {
+		let obj = {
+			map : function(iterator) {
+				var newObj = {};
+				newObj.foo = iterator(3);
+				return newObj;
+			}
+		};
+
+		let result = map(function(item) { return item * 2; }, obj);
+		result.foo.should.equal(6);
+	});
+
+	it('should throw an error if called on an object with no map property', function() {
+		let obj = {
+			foo : 1,
+			bar : 2
+		};
+		let seen = [];
+		(function(){ map(seen.push.bind(seen), obj); }).should.throw();
+	});
+
+	it('should be curryable', function() {
+		let arr = [1, 2, 3];
+		let seen = [];
+		map(function(item) {
+			seen.push(item);
+		})(arr);
+		arr.should.eql(seen.sort());
+	});
+});
+

@@ -1,4 +1,4 @@
-let { values, forEach, map } = require('../collection');
+let { values, forEach, map, reduce } = require('../collection');
 
 describe('values', () => {
 	it('should return all own enumerable properties of an object', () => {
@@ -103,63 +103,129 @@ describe('forEach', () => {
 	});
 });
 
-describe('map', function() {
+describe('map', () => {
 
-	it('should call it\'s iterator with exactly one argument', function() {
+	it('should call it\'s iterator with exactly one argument', () => {
 		let isCalled = false;
-		map(function() {
+		map((...args) => {
 			isCalled = true;
-			arguments.length.should.equal(1);
+			args.length.should.equal(1);
 		}, [1, 2, 3]);
 		isCalled.should.equal(true, 'Iterator was not called');
 	});
 
-	it('should call it\'s iterator once with each element in an array', function() {
+	it('should call it\'s iterator once with each element in an array', () => {
 		let arr = [1, 2, 3];
 		let seen = [];
-		map(function(item) {
+		map((item) => {
 			seen.push(item);
 		},arr);
 		arr.should.eql(seen.sort());
 	});
 
-	it('should collect the results of the iterator over an array into a new array', function() {
+	it('should collect the results of the iterator over an array into a new array', () => {
 		let arr = [1, 2, 3];
-		let result = map(function(item) {
+		let result = map((item) => {
 			return item * 2;
 		}, arr);
 		result.should.eql([2, 4, 6]);
 	});
 
-	it('should use an object\'s map property to iterate over it\'s items', function() {
+	it('should use an object\'s map property to iterate over it\'s items', () => {
 		let obj = {
-			map : function(iterator) {
+			map (iterator) {
 				var newObj = {};
 				newObj.foo = iterator(3);
 				return newObj;
 			}
 		};
 
-		let result = map(function(item) { return item * 2; }, obj);
+		let result = map((item) => item * 2, obj);
 		result.foo.should.equal(6);
 	});
 
-	it('should throw an error if called on an object with no map property', function() {
+	it('should throw an error if called on an object with no map property', () => {
 		let obj = {
 			foo : 1,
 			bar : 2
 		};
 		let seen = [];
-		(function(){ map(seen.push.bind(seen), obj); }).should.throw();
+		(() =>{ map(seen.push.bind(seen), obj); }).should.throw();
 	});
 
-	it('should be curryable', function() {
+	it('should be curryable', () => {
 		let arr = [1, 2, 3];
 		let seen = [];
-		map(function(item) {
+		map((item) => {
 			seen.push(item);
 		})(arr);
 		arr.should.eql(seen.sort());
 	});
+});
+
+describe('reduce', () => {
+	it('should call it\'s iterator with exactly two arguments', () => {
+		let isCalled = false;
+		reduce((...args) => {
+			isCalled = true;
+			args.length.should.equal(2);
+		}, 0, [1]);
+		isCalled.should.equal(true, 'Iterator is not called');
+	});
+
+	it('should call the iterator once for each value in the collection in order', () => {
+		let collection = [1, 2, 3];
+		let seen = [];
+		reduce((sum, current) => {
+			seen.push(current);
+		}, 0, collection);
+		seen.should.eql(collection);
+	});
+
+	it('should use the final value of the iterator as result value', () => {
+		reduce(() => 3, 0, [1]).should.equal(3);
+	});
+
+	it('should pass the initialValue to the first iteration', () => {
+		let isCalled = false;
+		reduce((sum, current) => {
+			isCalled = true;
+			sum.should.equal(3);
+		}, 3, [1]);
+		isCalled.should.equal(true, 'Iterator not called');
+	});
+
+	it('should pass the return value of an iteration to the next iteration', () => {
+		let collection = [1, 2, 3];
+		let expectedPartialSums = [
+			0,
+			1,
+			3
+		];
+		reduce((sum, current) => {
+			sum.should.equal(expectedPartialSums.shift());
+			return sum + current;
+		}, 0, collection);
+		expectedPartialSums.length.should.equal(0, 'Iterator not called for every item');
+	});
+
+	it('should delegate to an objects reduce method if present', () => {
+		let isCalled = false;
+		let result = {};
+		let subject = {
+			reduce(iterator, initialValue) {
+				isCalled = true;
+				initialValue.should.equal(3);
+				return result;
+			}
+		};
+		reduce(() => {}, 3, subject).should.equal(result);
+		isCalled.should.equal(true, 'Reduce implementation has not been called');
+	});
+	it('should throw an error when the subject has no reduce method', () => {
+		let subject = {};
+		(function() { reduce(() => {}, 0, subject); }).should.throw();
+	});
+
 });
 

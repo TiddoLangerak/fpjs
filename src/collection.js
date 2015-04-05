@@ -6,7 +6,7 @@ let singleArgument = truncateArguments(1);
 /**
  * Iterates over a subject.
  *
- * @param {Function} iterator A function to be called with each value of the subject
+ * @param {Function} iterator A function of type (a -> *) to be called with each value of the subject
  * @param {{ forEach }} subject An object that implements a forEach function.
  *
  * :: (a -> () ) -> (ForEach a) -> ()
@@ -21,7 +21,7 @@ let forEach = curry((iterator, subject) => {
 /**
  * Maps an object using an iterator function.
  *
- * @param {Function} iterator A function that maps one value to another.
+ * @param {Function} iterator A function of type (a -> b) that maps one value to another.
  * @param {{ map }} subject An object that implements a map function.
  *
  * Map (a -> b) c : An object with a map function that uses an iterator of type (a -> b) to create
@@ -33,6 +33,22 @@ let map = curry((iterator, subject) => {
 		throw new Error("Subject does not implement the Map interface");
 	}
 	return subject.map(singleArgument(iterator));
+});
+
+/**
+ * Reduces an object using an iterator function.
+ *
+ * @param {Function} iterator A function of type (b -> a -> b) that reduces a collection to a value
+ * @param {*} initialValue The initial value to start working with
+ * @param {{ reduce }} subject An object that implements the reduce function
+ *
+ * :: (b -> a -> b) -> b -> Reduce a
+ */
+let reduce = curry((iterator, initialValue, subject) => {
+	if (!subject.reduce) {
+		throw new Error("Subject does not implement the Reduce interface");
+	}
+	return subject.reduce(truncateArguments(2, iterator), initialValue);
 });
 
 /**
@@ -63,5 +79,5 @@ let values = (object) => {
 
 
 module.exports = {
-	values, forEach, map
+	values, forEach, map, reduce
 };

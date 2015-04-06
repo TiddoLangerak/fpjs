@@ -36,19 +36,35 @@ let map = curry((iterator, subject) => {
 });
 
 /**
- * Reduces an object using an iterator function.
+ * Reduces a collection using an iterator function starting at the first element.
  *
  * @param {Function} iterator A function of type (b -> a -> b) that reduces a collection to a value
  * @param {*} initialValue The initial value to start working with
  * @param {{ reduce }} subject An object that implements the reduce function
  *
- * :: (b -> a -> b) -> b -> Reduce a
+ * :: (b -> a -> b) -> b -> Reduce a -> b
  */
 let reduce = curry((iterator, initialValue, subject) => {
 	if (!subject.reduce) {
 		throw new Error("Subject does not implement the Reduce interface");
 	}
 	return subject.reduce(truncateArguments(2, iterator), initialValue);
+});
+
+/**
+ * Reduces a collection using an iterator function starting at the last element.
+ *
+ * @param {Function} iterator A function of type (b -> a -> b) that reduces a collection to a value
+ * @param {*} initialValue The initial value to start working with
+ * @param {{ reduce }} subject An object that implements the reduce function
+ *
+ * :: (b -> a -> b) -> b -> ReduceRight a -> b
+ */
+let reduceRight = curry((iterator, initialValue, subject) => {
+	if (!subject.reduceRight) {
+		throw new Error("Subject does not implement the ReduceRight interface");
+	}
+	return subject.reduceRight(truncateArguments(2, iterator), initialValue);
 });
 
 /**
@@ -79,5 +95,5 @@ let values = (object) => {
 
 
 module.exports = {
-	values, forEach, map, reduce
+	values, forEach, map, reduce, reduceRight
 };

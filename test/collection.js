@@ -1,4 +1,4 @@
-let { values, forEach, map, reduce } = require('../collection');
+let { values, forEach, map, reduce, reduceRight } = require('../collection');
 
 describe('values', () => {
 	it('should return all own enumerable properties of an object', () => {
@@ -229,3 +229,68 @@ describe('reduce', () => {
 
 });
 
+describe('reduceRight', () => {
+	it('should call it\'s iterator with exactly two arguments', () => {
+		let isCalled = false;
+		reduceRight((...args) => {
+			isCalled = true;
+			args.length.should.equal(2);
+		}, 0, [1]);
+		isCalled.should.equal(true, 'Iterator is not called');
+	});
+
+	it('should call the iterator once for each value in the collection in reverse order', () => {
+		let collection = [1, 2, 3];
+		let seen = [];
+		reduceRight((sum, current) => {
+			seen.unshift(current);
+		}, 0, collection);
+		seen.should.eql(collection);
+	});
+
+	it('should use the final value of the iterator as result value', () => {
+		reduceRight(() => 3, 0, [1]).should.equal(3);
+	});
+
+	it('should pass the initialValue to the first iteration', () => {
+		let isCalled = false;
+		reduceRight((sum, current) => {
+			isCalled = true;
+			sum.should.equal(3);
+		}, 3, [1]);
+		isCalled.should.equal(true, 'Iterator not called');
+	});
+
+	it('should pass the return value of an iteration to the next iteration', () => {
+		let collection = [1, 2, 3];
+		let expectedPartialSums = [
+			0,
+			3,
+			5
+		];
+		reduceRight((sum, current) => {
+			sum.should.equal(expectedPartialSums.shift());
+			return sum + current;
+		}, 0, collection);
+		expectedPartialSums.length.should.equal(0, 'Iterator not called for every item');
+	});
+
+	it('should delegate to an objects reduceRight method if present', () => {
+		let isCalled = false;
+		let result = {};
+		let subject = {
+			reduceRight(iterator, initialValue) {
+				isCalled = true;
+				initialValue.should.equal(3);
+				return result;
+			}
+		};
+		reduceRight(() => {}, 3, subject).should.equal(result);
+		isCalled.should.equal(true, 'Reduce implementation has not been called');
+	});
+	it('should throw an error when the subject has no reduce method', () => {
+		let subject = {};
+		(function() { reduceRight(() => {}, 0, subject); }).should.throw();
+	});
+
+});

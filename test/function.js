@@ -1,4 +1,4 @@
-let { sliceArguments, truncateArguments, compose } = require('../function');
+let { sliceArguments, truncateArguments, compose, notImplemented } = require('../function');
 let { i } = require('../core');
 
 describe('compose', () => {
@@ -117,5 +117,11 @@ describe('truncateArguments', () => {
 		}
 		let wrappedFunction = truncateArguments(1)(targetFunction);
 		wrappedFunction(1, 2, 3).should.equal(3);
+	});
+});
+
+describe('notImplemented', () => {
+	it('should throw with the message "Function not implemented"', () => {
+		notImplemented.should.throw("Function not implemented");
 	});
 });

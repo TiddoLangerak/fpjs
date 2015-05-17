@@ -59,8 +59,14 @@ let sliceArguments = assistedCurry((start, end, f) => {
  */
 let truncateArguments = sliceArguments(0);
 
+/**
+ * Function that throws immediately with the message "Function not implemented"
+ */
+let notImplemented = () => { throw new Error("Function not implemented"); };
+
 module.exports = {
 	sliceArguments,
 	truncateArguments,
-	compose
+	compose,
+	notImplemented
 };

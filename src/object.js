@@ -20,10 +20,17 @@ let get = curry((propertyName, object) => object[propertyName]);
  */
 let set = curry((value, propertyName, object) => object[propertyName] = value);
 
+/**
+ * Copies all values from source to target.
+ *
+ * :: a -> b -> (a = a & b, a) (Note: this means that whatever a was, it's now a & b. Additionally, a is returned)
+ */
+let extend = curry((target, source) => {
+	Object.keys(source)
+		.forEach((key) => target[key] = source[key]);
+	return target;
+});
+
 module.exports = {
-	/* jshint ignore:start */
-	// jshint doesn't recognize get and set as valid property names. See:
-	// https://github.com/jshint/jshint/issues/2288
-	get, set
-	/* jshint ignore:end */
+	get, set, extend
 };

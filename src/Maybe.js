@@ -24,6 +24,12 @@ let Maybe = {
 	 */
 	getOr : notImplemented,
 	/**
+	 * Returns the current Maybe if it is Just, otherwise it returns the other.
+	 *
+	 * :: Maybe a # Maybe b -> a | b
+	 */
+	or : notImplemented,
+	/**
 	 * Maps a Maybe onto another Maybe by transforming it's value with the function passed as argument.
 	 * :: Maybe a # (a -> b) -> Maybe b
 	 */
@@ -46,6 +52,7 @@ extend(Nothing, {
 		throw new Error("Maybe.Nothing has no value");
 	},
 	getOr : identity,
+	or : identity,
 	map : (mapper) => Nothing,
 	flatMap : (mapper) => Nothing
 });
@@ -60,6 +67,7 @@ let Just = (value) => {
 	extend(just, {
 		unsafeGet : () => value,
 		getOr : () => value,
+		or : () => just,
 		map : (mapper) => Just(mapper(value)),
 		//TODO: typechecking
 		flatMap : (mapper) => mapper(value)

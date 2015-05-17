@@ -82,6 +82,11 @@ let find = curry((predicate, collection) =>
 				 collection)
 );
 
+let all = curry((predicate, collection) =>
+								//TODO: implement not function
+	find((val) => !predicate(val), collection)
+);
+
 /**
  * Returns all own enumerable values of an object.
  *

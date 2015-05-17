@@ -311,3 +311,23 @@ describe('find', () => {
 		find((val) => val === 2)([1, 2, 3]).isJust().should.equal.true;
 	});
 });
+
+describe('all', () => {
+	it('should return true for the empty collection', () => {
+		all(() => false, []).should.equal.true;
+	});
+	it('should return true if the predicate returns true for all items', () => {
+		all(() => true, [1, 2, 3]).should.equal.true;
+	});
+	it('should return false if the predicate returns false for any item', () => {
+		all((val) => val !== 2, [1, 2, 3]).should.equal.false;
+	});
+	it('should only test items up until the first failure', () => {
+		let counts = 0;
+		all((val) => ++counts === 2, [1, 2, 3]);
+		counts.should.equal(2);
+	});
+	it('should be curryable', () => {
+		all(() => true)([1, 2, 3]).should.equal.true;
+	});
+});

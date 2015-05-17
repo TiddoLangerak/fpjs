@@ -2,6 +2,9 @@ let { extend } = require('./object');
 let { identity } = require('./core');
 let { notImplemented } = require('./function');
 
+//TODO: currently everything in the Maybe monad is ad-hoc implemented, but this should be done
+//properly with the help of type-classes.
+
 let Maybe = {
 	/**
 	 * Returns true if the maybe object is Nothing
@@ -20,13 +23,19 @@ let Maybe = {
 	unsafeGet : notImplemented,
 	/**
 	 * Gets the value or returns it's argument when Nothing
+	 *
+	 * Note that this function does NOT support using a function to generate the other value, like `or` does.
+	 * Doing so would result in ambiguity when the Maybe monad captures a function itself.
 	 * :: Maybe a #  b -> (a | b)
 	 */
 	getOr : notImplemented,
 	/**
 	 * Returns the current Maybe if it is Just, otherwise it returns the other.
 	 *
-	 * :: Maybe a # Maybe b -> a | b
+	 * Other may also be a function that generates a maybe object
+	 *
+	 * :: Maybe a # Maybe b -> Maybe (a | b)
+	 * :: Maybe a # (() -> Maybe b) -> Maybe (a | b)
 	 */
 	or : notImplemented,
 	/**
@@ -43,6 +52,13 @@ let Maybe = {
 	 * :: Maybe a # (a -> Maybe b) -> Maybe b
 	 */
 	flatMap : notImplemented,
+	/**
+	 * Returns `Just a` iff the filter function returns truthy when called with `a`. Otherwise returns
+	 * Nothing.
+	 *
+	 * :: Maybe a # (a -> Boolean) -> Maybe a
+	 */
+	filter : notImplemented
 };
 
 let Nothing = Object.create(Maybe);
@@ -52,9 +68,10 @@ extend(Nothing, {
 		throw new Error("Maybe.Nothing has no value");
 	},
 	getOr : identity,
-	or : identity,
+	or : (other) => other instanceof Function ? other() : other,
 	map : (mapper) => Nothing,
-	flatMap : (mapper) => Nothing
+	flatMap : (mapper) => Nothing,
+	filter : (filterFunc) => Nothing
 });
 
 let JustProto = Object.create(Maybe);
@@ -70,7 +87,8 @@ let Just = (value) => {
 		or : () => just,
 		map : (mapper) => Just(mapper(value)),
 		//TODO: typechecking
-		flatMap : (mapper) => mapper(value)
+		flatMap : (mapper) => mapper(value),
+		filter : (filterFunc) => filterFunc(value) ? just : Nothing
 	});
 	return just;
 };

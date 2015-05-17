@@ -50,6 +50,10 @@ describe('Maybe', () => {
 			let m = Just(3);
 			Nothing.or(m).should.equal(m);
 		});
+		it('should return the return value of its argument for the Nothing Maybe if its argument is a function', () => {
+			let m = Just(3);
+			Nothing.or(() => m).should.equal(m);
+		});
 	});
 
 
@@ -76,6 +80,19 @@ describe('Maybe', () => {
 		});
 	});
 
+	describe('filter', function() {
+		it('should return Nothing if called on Nothing', () => {
+			Nothing.filter(() => true).should.equal(Nothing);
+		});
+		it('should return Nothing if the filter function returns falsy', () => {
+			Just(3).filter(() => false).should.equal(Nothing);
+		});
+		it('should return the Just subject if the filter function returns truthy', () => {
+			let m = Just(3);
+			m.filter(() => true).should.equal(m);
+		});
+	});
+
 	describe('fromValue', () => {
 		it('should return the Nothing Maybe when called with null', () => {
 			Maybe.fromValue(null).should.equal(Nothing);
@@ -91,4 +108,5 @@ describe('Maybe', () => {
 			Maybe.fromValue(obj).unsafeGet().should.equal(obj);
 		});
 	});
+
 });

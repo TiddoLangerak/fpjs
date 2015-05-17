@@ -1,5 +1,6 @@
 let { curry } = require('./core');
 let { compose, truncateArguments } = require('./function');
+let { Just, Nothing } = require('./Maybe');
 
 let singleArgument = truncateArguments(1);
 
@@ -56,7 +57,7 @@ let reduce = curry((iterator, initialValue, subject) => {
  *
  * @param {Function} iterator A function of type (b -> a -> b) that reduces a collection to a value
  * @param {*} initialValue The initial value to start working with
- * @param {{ reduce }} subject An object that implements the reduce function
+ * @param {{ reduceRight }} subject An object that implements the reduce function
  *
  * :: (b -> a -> b) -> b -> ReduceRight a -> b
  */
@@ -66,6 +67,20 @@ let reduceRight = curry((iterator, initialValue, subject) => {
 	}
 	return subject.reduceRight(truncateArguments(2, iterator), initialValue);
 });
+
+/**
+ * Finds the first item for which the predicate returns true.
+ * @param {Function} predicate The predicate that will be called with each item in the collection
+ * @param {{ reduce }} collection An object that implements the reduce function.
+ *
+ * :: (a -> Boolean) -> Reduce a -> Maybe a
+ */
+let find = curry((predicate, collection) =>
+	reduce((result, current) =>
+				 result.or(() => Just(current).filter(predicate)),
+				 Nothing,
+				 collection)
+);
 
 /**
  * Returns all own enumerable values of an object.
@@ -95,5 +110,5 @@ let values = (object) => {
 
 
 module.exports = {
-	values, forEach, map, reduce, reduceRight
+	values, forEach, map, reduce, reduceRight, find
 };

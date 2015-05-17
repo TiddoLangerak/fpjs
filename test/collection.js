@@ -1,4 +1,5 @@
-let { values, forEach, map, reduce, reduceRight } = require('../collection');
+let { values, forEach, map, reduce, reduceRight, find } = require('../collection');
+let { Just, Nothing } = require('../Maybe');
 
 describe('values', () => {
 	it('should return all own enumerable properties of an object', () => {
@@ -292,5 +293,21 @@ describe('reduceRight', () => {
 		let subject = {};
 		(function() { reduceRight(() => {}, 0, subject); }).should.throw();
 	});
+});
 
+describe('find', () => {
+	it('should return Maybe.Nothing for an empty collection', () => {
+		find(() => true, []).should.equal(Nothing);
+	});
+	it('should return Maybe.Nothing if the predicate always returns false', () => {
+		find(() => false, [1, 2, 3]).should.equal(Nothing);
+	});
+	it('should return Just(value) for the first value that passes the predicate', () => {
+		let result = find((val) => val === 2, [1, 2, 3]);
+		result.isJust().should.equal.true;
+		result.unsafeGet().should.equal(2);
+	});
+	it('should be curryable', () => {
+		find((val) => val === 2)([1, 2, 3]).isJust().should.equal.true;
+	});
 });

@@ -1,7 +1,7 @@
 {
   "name": "fpjs",
   "version": "0.1.0",
-  "description": "",
+  "description": "A small utility library for functional programming in JavaScript",
   "main": "index.js",
   "author": "Tiddo Langerak <tiddolangerak@gmail.com>",
   "license": "MIT",
@@ -16,5 +16,16 @@
     "babel": "^5.0.8",
     "mocha": "^2.2.1",
     "should": "^5.2.0"
-  }
+  },
+  "directories": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/TiddoLangerak/fpjs.git"
+  },
+  "bugs": {
+    "url": "https://github.com/TiddoLangerak/fpjs/issues"
+  },
+  "homepage": "https://github.com/TiddoLangerak/fpjs#readme"
 }
